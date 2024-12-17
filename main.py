@@ -1,11 +1,11 @@
 # local message dir: /home/arcnemesys/.thunderbird/ufqe2ut1.default-release/Mail/pop.gmail.com 
 
 import os 
-import configparser 
-
-
+import configparser
+import mailbox
+import email 
+from email.message import EmailMessage
 config = configparser.ConfigParser() 
-
 
 def get_profile():
     # Target users Thunderbird profile.
@@ -38,15 +38,19 @@ def get_inbox(profile_folder):
         raise FileNotFoundError("No Thunderbird Inbox file found.")
     return inbox_paths[0]
 
+
+def read_inbox(inbox_path):
+    mbox = mailbox.mbox(inbox_path)
+    for message in mbox:
+        print(f"Subject: {message['subject']}")
 def main():
     try:
         profile_folder = get_profile()
         inbox_path = get_inbox(profile_folder)
-        print(f"Thunderbird profile folder: {profile_folder}")
-        print(f"Thunderbird Inbox: {inbox_path}")
+        read_inbox(inbox_path)
     except Exception as e:
         print(f"Error : {e}")
-    print("Hello from lemai!")
+    print("Hello from rag-ai")
 
 
 if __name__ == "__main__":
