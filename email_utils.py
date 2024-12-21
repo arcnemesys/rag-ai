@@ -3,6 +3,8 @@ import configparser
 import mailbox
 from email.message import EmailMessage
 config = configparser.ConfigParser() 
+class Email:
+    """A representation of an email from a local user inbox."""
 
 def get_profile():
     # Target users Thunderbird profile.
