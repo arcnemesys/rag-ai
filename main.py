@@ -11,5 +11,4 @@ def main():
         print(f"Error : {e}")
     print("Hello from rag-ai")
 if __name__ == "__main__":
-   app = Lemais()
-   app.run()
+    main()
