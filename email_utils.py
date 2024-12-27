@@ -62,3 +62,19 @@ def extract_body(message):
             html_content = message.get_payload(decode=True).decode('utf-8', errors='ignore')
             extracted_content = BeautifulSoup(html_content, "html.parser")
             return extracted_content.get_text(separator="\n").strip()
+
+
+def read_inbox(inbox_path):
+    mbox = mailbox.mbox(inbox_path)
+    count_num = 0
+
+    for message in mbox:
+        count_num += 1
+        print(count_num)
+        if count_num >= 5:
+            break
+        print(f"Subject: {message['subject']}")
+        print(f"From: {message['from']}")
+        print(f"Date: {message['date']}")
+        body = extract_body(message)
+        print(f"Body: \n{body}\n")

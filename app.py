@@ -2,6 +2,7 @@ from textual.app import App, ComposeResult, RenderResult
 from textual.widgets import Welcome, Footer, Header, Label, ListItem, ListView
 from textual.widget import Widget 
 from textual import events 
+from email_utils import get_inbox, read_inbox, get_inbox, get_profile, extract_body 
 
 class LemaisMenu(Widget):
     CSS_PATH = "app.tcss"
