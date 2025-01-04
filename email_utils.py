@@ -1,10 +1,38 @@
 import os 
 import configparser
 import mailbox
+import chromadb
 from bs4 import BeautifulSoup
 from email.message import EmailMessage
+from sentence_transformers import SentenceTransformer 
 
 config = configparser.ConfigParser() 
+model = SentenceTransformer('all-MiniLM-L6-v2')
+client = chromadb.Client()
+
+collection = client.get_or_create_collection("emails")
+
+email_texts = [
+    "Hello, this is a test email about meeting schedules.",
+    "Your order has been shipped. Check your tracking details.",
+    "Reminder: Your appointment is tomorrow at 3 PM."
+]
+
+embeddings = mode.encode(email_texts)
+
+collection.add(
+        embeddings=embeddings.tolist(),
+        documents=email_texts,
+        ids=[f"email_{i}" for i in range(len(email_texts))]
+        )
+
+query_text = "What categories are these?"
+query_embedding = model.encode([query_text])
+
+results = collection.query(
+        query_embeddings=query_embedding.tolist(),
+        n_results=10
+        )
 
 class Email:
     """A representation of an email from a local user inbox."""
