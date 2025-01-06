@@ -3,19 +3,6 @@
 from kivy.uix.vkeyboard import Vector
 from email_utils import get_profile, get_inbox, read_inbox
 from app import Lemais
-from kivy.app import App
-from kivymd.app import MDApp
-from kivymd.uix.screen import MDScreen
-from kivymd.uix.button import MDTextButton
-from kivymd.uix.list import MDListItem, MDListItemHeadlineText
-from kivy.uix.boxlayout import BoxLayout, NumericProperty, ReferenceListProperty
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.widget import Widget 
-from kivy.vector import Vector 
-from kivy.clock import Clock
 
 class EmailSorterApp(App):
     def build(self):
@@ -73,29 +60,6 @@ class EmailSorterApp(App):
         print(f"Reply to be sent: {reply_text}")
         self.reply_input.text = ''  # Clear the reply input
 
-class PongGame(Widget):
-    def update(self, dt):
-        pass 
-class PongBall(Widget):
-    velocity_x = NumericProperty(0)
-    velocity_y = NumericProperty(0)
-    velocity = ReferenceListProperty(velocity_x, velocity_y)
-
-    def move(self):
-        self.pos = Vector(*self.velocity) + self.pos 
-class PongApp(App):
-    def build(self):
-        game = PongGame()
-        Clock.schedule_interval(game.update, 1.0/60.0)
-
-class MainApp(MDApp):
-    def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.theme_style = "Olive"
-
-        return (
-            MDScreen(
-                MDTextButton(text="Hello, World"))) 
 def main():
     try:
         profile_folder = get_profile()
