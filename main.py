@@ -1,5 +1,3 @@
-# local message dir: /home/arcnemesys/.thunderbird/ufqe2ut1.default-release/Mail/pop.gmail.com 
-
 from kivy.uix.vkeyboard import Vector
 from email_utils import get_profile, get_inbox, read_inbox
 from app import Lemais
@@ -68,6 +66,7 @@ def main():
     except Exception as e:
         print(f"Error : {e}")
     print("Hello from rag-ai")
+
 if __name__ == "__main__":
     # PongApp().run()
-    MainApp().run()
+    main()

@@ -1,40 +1,11 @@
-import os 
-import configparser
-import mailbox
-from bs4 import BeautifulSoup
-from email.message import EmailMessage
-from sentence_transformers import SentenceTransformer
-from sklearn.cluster import KMeans
-import numpy as np 
-import faiss
+import os
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from config import ConfigParser
 
+config = ConfigParser()
 
-NUM_CATEGORIES = 5 
-
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
-email_texts = [
-    "Hello, this is a test email about meeting schedules.",
-    "Your order has been shipped. Check your tracking details.",
-    "Reminder: Your appointment is tomorrow at 3 PM."
-]
-
-email_vectors = model.encode(email_texts)
-email_vectors = np.array(email_vectors).astype('float32')
-
-dimension = email_vectors.shape[1]
-index = faiss.IndexFlatL2(dimension)
-index.add(email_vectors)
-
-query = model.encode(["What categories can these emails be sorted into?"]).astype('float32')
-
-distances, indices = index.search(query, NUM_CATEGORIES)
-
-kmeans = KMeans(n_clusters=3, random_state=0)
-categories = kmeans.fit_predict(email_vectors)
-
-for i, category in enumerate(categories):
-    print(f"Email: {email_texts[i]} maps to Category: {category}")
 class Email:
     """A representation of an email from a local user inbox."""
 
@@ -103,8 +74,74 @@ def read_inbox(inbox_path):
         email_body = extract_body(message )
         email = Email()
         email.__init__(email_subject, email_body, email_sender)
+        emails.push(email)
         print(f"Subject: {email.subject}")
         print(f"From: {email.sender}")
         # print(f"Date: {message['date']}")
         # body = extract_body(message)
         print(f"Body: \n{email_body}\n")
+    return emails
+
+email_profile = get_profile()
+email_inbox = get_inbox(email_profile)
+email_list = read_inbox(email_inbox)
+email_bodies = [email.body for email in email_list]
+
+labels = ["Work", "Updates", "Personal", "Promotions", "Spam"]
+
+
+def train_classifier(email_texts, labels):
+    """
+    Train a Naive Bayes classifier using TF-IDF vectorization.
+    """
+    # Convert text data to TF-IDF features
+    vectorizer = TfidfVectorizer()
+    X = vectorizer.fit_transform(email_texts)
+    y = labels
+
+    # Train a Naive Bayes classifier
+    model = MultinomialNB()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model.fit(X_train, y_train)
+
+    # Test model accuracy
+    accuracy = model.score(X_test, y_test)
+    print(f"Model Accuracy: {accuracy:.2f}")
+
+    return model, vectorizer
+
+def classify_emails(model, vectorizer, new_emails):
+    """
+    Classify new emails into predefined categories.
+    """
+    new_X = vectorizer.transform(new_emails)
+    predictions = model.predict(new_X)
+
+    # Associate emails with their predicted categories
+    email_categories = {email: category for email, category in zip(new_emails, predictions)}
+    return email_categories
+
+def query_by_category(email_categories, category):
+    """
+    Query emails by category.
+    """
+    return [email for email, cat in email_categories.items() if cat == category]
+
+# Train the classifier
+model, vectorizer = train_classifier(email_texts, labels)
+
+# Classify new emails
+email_categories = classify_emails(model, vectorizer, new_emails)
+
+# Display the categorized emails
+print("\nCategorized Emails:")
+for email, category in email_categories.items():
+    print(f"Email: '{email}' -> Category: {category}")
+
+# Query emails by category
+category_to_query = "Work"
+queried_emails = query_by_category(email_categories, category_to_query)
+print(f"\nEmails in category '{category_to_query}':")
+for email in queried_emails:
+    print(f"- {email}")
+
